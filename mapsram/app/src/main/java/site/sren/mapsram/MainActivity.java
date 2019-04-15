@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
             //db = helper.getReadableDatabase(); // 읽기 전용 DB select문
         } catch (SQLiteException e) {
             e.printStackTrace();
+            Log.e(tag, e.getMessage());
             Log.e(tag, "데이터베이스를 얻어올 수 없음");
             finish(); // 액티비티 종료
         }
@@ -62,60 +63,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         */
-
-        //btn2 액션 (modify list)
-        Button modifyButton = (Button)findViewById(R.id.btn2) ;
-        modifyButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                int count, checked ;
-                count = adapter.getCount() ;
-
-                if (count > 0) {
-                    // 현재 선택된 아이템의 position 획득.
-                    checked = listview.getCheckedItemPosition();
-                    if (checked > -1 && checked < count) {
-                        // 아이템 수정
-                        items.set(checked, Integer.toString(checked+1) + "번 아이템 수정") ;
-
-                        // listview 갱신
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        }) ;
-
-        // btn3 액션 (delete list)
-        Button deleteButton = (Button)findViewById(R.id.btn3) ;
-        deleteButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                int count, checked ;
-                count = adapter.getCount() ;
-
-                if (count > 0) {
-                    // 현재 선택된 아이템의 position 획득.
-                    checked = listview.getCheckedItemPosition();
-
-                    if (checked > -1 && checked < count) {
-                        // 아이템 삭제
-                        items.remove(checked) ;
-
-                        // listview 선택 초기화.
-                        listview.clearChoices();
-
-                        // listview 갱신.
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        }) ;
     }
 
-    //버튼
+    //1번 버튼
     public void mOnPopupClick(View v){
         //팝업(액티비티) 호출
         Intent intent = new Intent(this, addPopupActivity.class);
         intent.putExtra("data", "Test Popup");
         startActivityForResult(intent, 1);
+    }
+
+    //2번 버튼
+    public void mInsertClick(View v){
+        Log.d(tag, "insert 클릭");
+        SQLite_insert();
+    }
+
+    //3번 버튼
+    public void mSelectClick(View v){
+        Log.d(tag, "select 클릭");
+        SQLite_select();
     }
 
     @Override
@@ -173,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void SQLite_insert () {
-        db.execSQL("insert into alram (id) values(1);");
+        db.execSQL("insert into alram (name) values('test');");
         Log.d(tag, "insert 성공");
     }
 

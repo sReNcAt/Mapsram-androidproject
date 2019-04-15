@@ -39,12 +39,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:onClick="mInsertClick"
                 android:text="btn2" />
             <Button
                 android:id="@+id/btn3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:onClick="mSelectClick"
                 android:text="btn3" />
         </LinearLayout>
     </LinearLayout>
