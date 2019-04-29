@@ -1,10 +1,16 @@
 package site.sren.mapsram;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,11 +20,17 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    public static int RENEW_GPS = 1;
+    public static int SEND_PRINT = 2;
+    public static int STOP_GPS = 3;
+    public static TextView test_text;
     final static ArrayList<String> items = new ArrayList<String>() ;
     private SQLiteHelper helper;
     String dbName = "alram.db";
@@ -33,7 +45,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        if ( Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  },
+                    0 );
+        }
+        test_text = (TextView)findViewById(R.id.test_text);
+        //Service 객체 생성
+        GPSTracker.isGPSEnabled = true;
+        Intent serviceIntent = new Intent(getApplicationContext(),BackgroundService.class);
+        serviceIntent.putExtra("count",1);
+        startService(serviceIntent);
         //SQLite 객체 생성
         helper = new SQLiteHelper(this,dbName,null,dbVersion);
         try {
@@ -77,12 +99,20 @@ public class MainActivity extends AppCompatActivity {
     public void mInsertClick(View v){
         Log.d(tag, "insert 클릭");
         SQLite_insert();
+        BackgroundService.gps = new GPSTracker(MainActivity.this,BackgroundService.mHandler);
     }
 
     //3번 버튼
     public void mSelectClick(View v){
         Log.d(tag, "select 클릭");
         SQLite_select();
+        Message msg = BackgroundService.mHandler.obtainMessage();
+        // 메시지 ID 설정
+        msg.what = MainActivity.STOP_GPS;
+        // 메시지 정보 설정3 (Object 형식)
+        //String hi = new String("Count Thared 가 동작하고 있습니다.");
+        //msg.obj = hi;
+        BackgroundService.mHandler.sendMessage(msg);
     }
 
     @Override
