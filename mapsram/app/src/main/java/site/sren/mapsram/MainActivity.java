@@ -1,5 +1,7 @@
 package site.sren.mapsram;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,12 +23,45 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
-
-
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+    public static GoogleMap mMap;
+    public static boolean isbtn2 = false;
     public static int RENEW_GPS = 1;
     public static int SEND_PRINT = 2;
     public static int STOP_GPS = 3;
@@ -50,12 +85,22 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  },
                     0 );
         }
+        // Build the map.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         test_text = (TextView)findViewById(R.id.test_text);
+
         //Service 객체 생성
         GPSTracker.isGPSEnabled = true;
-        Intent serviceIntent = new Intent(getApplicationContext(),BackgroundService.class);
-        serviceIntent.putExtra("count",1);
-        startService(serviceIntent);
+
+        //서비스 객체 실행 확인
+        if(!isServiceRunningCheck()) {
+            Intent serviceIntent = new Intent(getApplicationContext(), BackgroundService.class);
+            serviceIntent.putExtra("count", 1);
+            startService(serviceIntent);
+        }
+
         //SQLite 객체 생성
         helper = new SQLiteHelper(this,dbName,null,dbVersion);
         try {
@@ -85,6 +130,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         */
+        //gps 서비스 시작
+
+    }
+
+    //서비스 중복실행 방지
+    public boolean isServiceRunningCheck() {
+        ActivityManager manager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("site.sren.mapsram.BackgroundService".equals(service.service.getClassName())) {
+                Log.e("service","true");
+                return true;
+            }
+        }
+        Log.e("service","false");
+        return false;
     }
 
     //1번 버튼
@@ -99,20 +159,12 @@ public class MainActivity extends AppCompatActivity {
     public void mInsertClick(View v){
         Log.d(tag, "insert 클릭");
         SQLite_insert();
-        BackgroundService.gps = new GPSTracker(MainActivity.this,BackgroundService.mHandler);
     }
 
     //3번 버튼
     public void mSelectClick(View v){
         Log.d(tag, "select 클릭");
         SQLite_select();
-        Message msg = BackgroundService.mHandler.obtainMessage();
-        // 메시지 ID 설정
-        msg.what = MainActivity.STOP_GPS;
-        // 메시지 정보 설정3 (Object 형식)
-        //String hi = new String("Count Thared 가 동작하고 있습니다.");
-        //msg.obj = hi;
-        BackgroundService.mHandler.sendMessage(msg);
     }
 
     @Override
@@ -174,4 +226,24 @@ public class MainActivity extends AppCompatActivity {
         Log.d(tag, "insert 성공");
     }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+        mMap = map;
+
+        // Use a custom info window adapter to handle multiple lines of text in the
+        // info window contents.
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            // Return null here, so that getInfoContents() is called next.
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                return null;
+            }
+        });
+    }
 }

@@ -17,13 +17,20 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.TextView;
+import java.util.Calendar;
+
 
 public class BackgroundService extends Service {
     private IBinder mIBinder = new MyBinder();
     public static GPSTracker gps = null;
     public static Handler mHandler;
     public static int count = 0;
+
     private CountThread mCountThread = null;
+    private double before_lat = 0.00;
+    private double before_lon = 0.00;
+
+    DistanceCalculator calc = new DistanceCalculator();
 
     public int var = 777; //서비스바인딩의 예시로 출력할 값
 
@@ -43,7 +50,6 @@ public class BackgroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("Service", "onStartCommand()");
         mCountThread = new CountThread();
-        mCountThread.start();
         mHandler = new Handler(){
             @Override
             public void handleMessage(Message msg){
@@ -58,8 +64,23 @@ public class BackgroundService extends Service {
                 }
                 if(msg.what==MainActivity.SEND_PRINT){
                     count++;
-                    MainActivity.test_text.setText((msg.obj+"\n").split("/")[0]+"/"+(msg.obj+"\n").split("/")[1]+" "+count);
+                    Calendar currentTime = Calendar.getInstance();
+                    int hour = currentTime.get(Calendar.HOUR_OF_DAY);
+                    int minute = currentTime.get(Calendar.MINUTE);
+                    int second = currentTime.get(Calendar.SECOND);
+                    int distance = 0;
+                    double current_lat = Double.parseDouble((msg.obj+"\n").split("/")[0]);
+                    double current_lon = Double.parseDouble((msg.obj+"\n").split("/")[1]);
+
                     Log.d("GPS_VALUE", msg.obj + "\n");
+                    if(before_lat!=0.00 || before_lon !=0.00){
+                        distance = (int)(calc.distance(before_lat, before_lon, current_lat, current_lon, "M"));
+                        Log.d("distance",distance+"미터");
+                    }else {
+                        before_lat = current_lat;
+                        before_lon = current_lon;
+                    }
+                    MainActivity.test_text.setText(current_lat+"/"+current_lon+"\n"+distance+"m\n"+hour+"시 "+minute+"분 "+second+"초");
                 }
                 if(msg.what==MainActivity.STOP_GPS){
                     mCountThread.stopThread();
@@ -67,6 +88,8 @@ public class BackgroundService extends Service {
                 }
             }
         };
+        mCountThread.start();
+        BackgroundService.gps = new GPSTracker(BackgroundService.this, BackgroundService.mHandler);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -105,6 +128,9 @@ public class BackgroundService extends Service {
             isPlay = !isPlay;
         }
 
+        public void startThread(){
+            isPlay = true;
+        }
         @Override
         public void run() {
             super.run();

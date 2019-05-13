@@ -20,6 +20,10 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.Set;
 
 /**
@@ -130,6 +134,14 @@ public class GPSTracker extends Service implements LocationListener {
         }
         if (location != null) {
             send_handler_location(location);
+            LatLng mDefaultLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            MainActivity.mMap.moveCamera(CameraUpdateFactory
+                    .newLatLngZoom(mDefaultLocation, 15));
+            MainActivity.mMap.clear();
+            MainActivity.mMap.addMarker(new MarkerOptions()
+                    .title("현재위치")
+                    .position(mDefaultLocation)
+                    .snippet("위치확인 불가"));
         }else{
             Log.d("gps", "null Location");
         }
@@ -228,7 +240,7 @@ public class GPSTracker extends Service implements LocationListener {
             double latitude= location.getLatitude();
             double longitude = location.getLongitude();
             //Toast.makeText(mContext, "onLocationChanged is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_SHORT).show();
-            sendString("onLocationChanged is - \nLat: " + latitude + "\nLong: " + longitude + " provider:"+location.getProvider()+" mock:"+location.isFromMockProvider());
+            //sendString("onLocationChanged is - \nLat: " + latitude + "\nLong: " + longitude + " provider:"+location.getProvider()+" mock:"+location.isFromMockProvider());
         }
     }
 
@@ -236,21 +248,21 @@ public class GPSTracker extends Service implements LocationListener {
     public void onProviderDisabled(String provider) {
         //Toast.makeText(mContext, "onProviderDisabled " + provider, Toast.LENGTH_SHORT).show();
         mHandler.sendEmptyMessage(MainActivity.RENEW_GPS);
-        sendString( "onProviderDisabled " + provider);
+        //sendString( "onProviderDisabled " + provider);
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         //Toast.makeText(mContext, "onProviderEnabled " + provider, Toast.LENGTH_SHORT).show();
         mHandler.sendEmptyMessage(MainActivity.RENEW_GPS);
-        sendString( "onProviderEnabled " + provider);
+        //sendString( "onProviderEnabled " + provider);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         //Toast.makeText(mContext, "onStatusChanged " + provider + " : " + status, Toast.LENGTH_SHORT).show();
         mHandler.sendEmptyMessage(MainActivity.RENEW_GPS);
-        sendString("onStatusChanged " + provider + " : " + status + ":" + printBundle(extras));
+        //sendString("onStatusChanged " + provider + " : " + status + ":" + printBundle(extras));
     }
 
     @Override
