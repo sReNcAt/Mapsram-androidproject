@@ -1,5 +1,5 @@
 package site.sren.mapsram;
-import android.Manifest;
+
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
@@ -15,15 +15,17 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,6 +33,8 @@ import java.util.Set;
  */
 public class GPSTracker extends Service implements LocationListener {
 
+    public List<Marker> marker_temp_list = new ArrayList<Marker>();
+    public static LatLng last_location = new LatLng(0, 0);
     private final Context mContext;
 
     // flag for GPS status
@@ -133,15 +137,24 @@ public class GPSTracker extends Service implements LocationListener {
             e.printStackTrace();
         }
         if (location != null) {
+
             send_handler_location(location);
-            LatLng mDefaultLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            MainActivity.mMap.moveCamera(CameraUpdateFactory
-                    .newLatLngZoom(mDefaultLocation, 15));
-            MainActivity.mMap.clear();
-            MainActivity.mMap.addMarker(new MarkerOptions()
+            last_location = new LatLng(location.getLatitude(), location.getLongitude());
+            if(marker_temp_list.size()>0) {
+                for (Marker marker_temp: marker_temp_list) {
+                    marker_temp.remove();
+                }
+            }else{
+                MainActivity.mMap.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(last_location, 15));
+            }
+            //MainActivity.mMap.clear();
+            Marker marker_temp = MainActivity.mMap.addMarker(new MarkerOptions()
                     .title("현재위치")
-                    .position(mDefaultLocation)
-                    .snippet("위치확인 불가"));
+                    .position(last_location)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    //.snippet("위치확인 불가"));
+            marker_temp_list.add(marker_temp);
         }else{
             Log.d("gps", "null Location");
         }
