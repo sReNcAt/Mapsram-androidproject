@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="300dp"
+        android:layout_width="360dp"
         android:layout_height="wrap_content"
         android:background="#eeeeee"
         android:orientation="vertical"
@@ -27,7 +27,7 @@
                 android:layout_height="53dp"
                 android:background="#ff7a00"
                 android:gravity="center"
-                android:text="Notice"
+                android:text="알림 설정"
                 android:textColor="#fff"
                 android:textSize="20sp" />
         </LinearLayout>
@@ -38,17 +38,102 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
-
-            <TextView
-                android:id="@+id/txtText"
+            android:padding="24dp"
+            android:layout_gravity="center_horizontal" >
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
-                android:alpha="0.87"
-                android:gravity="center"
-                android:textColor="#000"
-                android:textSize="15sp" />
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+                <TextView
+                    android:id="@+id/areaTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:alpha="0.87"
+                    android:textColor="#000"
+                    android:gravity="left"
+                    android:textSize="15sp"
+                    android:text="장 소"/>
+                <EditText
+                    android:id="@+id/areaEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+                <TextView
+                    android:id="@+id/timeTxt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:alpha="0.87"
+                    android:textColor="#000"
+                    android:gravity="left"
+                    android:textSize="15sp"
+                    android:text="시 간"/>
+                <TimePicker
+                    android:id="@+id/timePicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="30dp"
+                    android:gravity="right"
+                    android:scaleX="0.7"
+                    android:scaleY="0.7"
+                    android:timePickerMode="spinner" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+                <TextView
+                    android:id="@+id/workTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:alpha="0.87"
+                    android:textColor="#3DB7CC"
+                    android:gravity="left"
+                    android:textSize="15sp"
+                    android:text="할 일"/>
+                <EditText
+                    android:id="@+id/workEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#3DB7CC"
+                    android:text="123"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal">
+                    <CheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="시간 알림"
+                        android:textColor="#000"
+                        android:id="@+id/check1"
+                        android:layout_marginRight="100dp"/>
+                    <CheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#000"
+                        android:text="장소 알림"
+                        android:id="@+id/check2"/>
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
         <!-- Notice -->
 

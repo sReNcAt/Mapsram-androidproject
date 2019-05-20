@@ -24,6 +24,10 @@
             android:name=".addPopupActivity"
             android:theme="@android:style/Theme.Dialog">
         </activity>
+        <activity
+            android:name=".selectAreaActivity"
+            android:theme="@android:style/Theme.Dialog">
+        </activity>
         <service android:name="BackgroundService"></service>
         <meta-data
             android:name="com.google.android.gms.version"

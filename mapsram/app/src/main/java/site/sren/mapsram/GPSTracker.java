@@ -139,7 +139,7 @@ public class GPSTracker extends Service implements LocationListener {
         if (location != null) {
 
             send_handler_location(location);
-            last_location = new LatLng(location.getLatitude(), location.getLongitude());
+            last_location = new LatLng(Math.round(location.getLatitude()*100000)/100000, Math.round(location.getLongitude()*100000)/100000);
             if(marker_temp_list.size()>0) {
                 for (Marker marker_temp: marker_temp_list) {
                     marker_temp.remove();
