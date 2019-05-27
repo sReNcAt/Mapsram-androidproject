@@ -25,7 +25,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="53dp"
-                android:background="#ff7a00"
+                android:background="#3DB7CC"
                 android:gravity="center"
                 android:text="알림 설정"
                 android:textColor="#fff"
@@ -61,6 +61,32 @@
                     android:layout_height="wrap_content"/>
             </LinearLayout>
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal">
+                    <CheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="시간 알림"
+                        android:textColor="#000"
+                        android:id="@+id/check1"
+                        android:layout_marginRight="100dp"/>
+                    <CheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#000"
+                        android:text="장소 알림"
+                        android:id="@+id/check2"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/timelinear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -107,33 +133,6 @@
                     android:textColor="#3DB7CC"
                     android:text="123"/>
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal">
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_horizontal">
-                    <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="시간 알림"
-                        android:textColor="#000"
-                        android:id="@+id/check1"
-                        android:layout_marginRight="100dp"/>
-                    <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000"
-                        android:text="장소 알림"
-                        android:id="@+id/check2"/>
-                </LinearLayout>
-            </LinearLayout>
-
         </LinearLayout>
         <!-- Notice -->
 
@@ -157,7 +156,7 @@
                 android:onClick="mOnSave"
                 android:padding="16dp"
                 android:text="저장"
-                android:textColor="#ff7a00"
+                android:textColor="#3DB7CC"
                 android:textSize="15sp" />
             <View
                 android:layout_width="2dp"
@@ -171,7 +170,7 @@
                 android:onClick="mOnClose"
                 android:padding="16dp"
                 android:text="취소"
-                android:textColor="#ff7a00"
+                android:textColor="#3DB7CC"
                 android:textSize="15sp" />
 
         </LinearLayout>

@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class selectAreaActivity extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private LatLng select_LatLng;
+    private Button current;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -40,6 +41,7 @@ public class selectAreaActivity extends FragmentActivity implements OnMapReadyCa
 
         Button Ok_btn = findViewById(R.id.areaOK);
         Button Can_btn = findViewById(R.id.areaCan);
+        current = findViewById(R.id.current_location);
 
         Ok_btn.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -62,6 +64,16 @@ public class selectAreaActivity extends FragmentActivity implements OnMapReadyCa
             }
         });
 
+        current.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("map","move current location");
+                if(GPSTracker.last_location!=null) {
+                    MainActivity.mMap.clear();
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(GPSTracker.last_location, 15));
+                }
+            }
+        });
     }
 
     public void onStop () {

@@ -25,17 +25,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="test data" />
+                android:text="test data"
+                android:visibility="gone" />
         </LinearLayout>
-        <ListView
-            android:id="@+id/listview1"
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:choiceMode="singleChoice" />
+            android:layout_height="match_parent"
+            tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace">
+            <Button
+                android:id="@+id/current_location_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|top"
+                android:text="현재 위치"
+                android:padding="10dp"
+                android:alpha="0.7"
+                android:layout_marginTop="20dp"
+                android:paddingRight="10dp"/>
+        </fragment>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="300dp"
+            android:orientation="horizontal">
+            <ListView
+                android:id="@+id/itemlist"
+                android:isScrollContainer="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:choiceMode="singleChoice" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:orientation="horizontal">
             <Button
                 android:id="@+id/btn1"
@@ -59,12 +86,5 @@
                 android:onClick="mSelectClick"
                 android:text="btn3" />
         </LinearLayout>
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -1,5 +1,6 @@
 package site.sren.mapsram;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
@@ -14,10 +15,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -41,9 +45,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     final static ArrayList<String> items = new ArrayList<String>() ;
     private SQLiteHelper helper;
     String dbName = "alram.db";
-    int dbVersion = 1;
+    int dbVersion = 2;
     private SQLiteDatabase db;
     String tag = "SQLite";
+    private ArrayList<String> arrayList;
+    private ListViewAdaptar adapter;
+    private  ListView listview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +60,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setSupportActionBar(toolbar);
 
         if ( Build.VERSION.SDK_INT >= 23 &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions( this, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  },
+                ContextCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions( this, new String[] {  Manifest.permission.ACCESS_FINE_LOCATION  },
                     0 );
         }
         // Build the map.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
+        arrayList = new ArrayList<String>();
+        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, items) ;
+        adapter = new ListViewAdaptar();
+
+        // listview 생성 및 adapter 지정.
+        listview = (ListView) findViewById(R.id.itemlist) ;
+        listview.setAdapter(adapter) ;
+
+        Display mDisplay = this.getWindowManager().getDefaultDisplay();
+        int height = mDisplay.getHeight();
+        ViewGroup.LayoutParams params = mapFragment.getView().getLayoutParams();
+
+        params.height = (int)(height/2.5);
+
+        mapFragment.getView().setLayoutParams(params);
+        //listview.setLayoutParams(params);
         mapFragment.getMapAsync(this);
         test_text = (TextView)findViewById(R.id.test_text);
 
@@ -77,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         helper = new SQLiteHelper(this,dbName,null,dbVersion);
         try {
             db = helper.getWritableDatabase(); // 읽고 쓸수 있는 DB
+            SQLite_select_all();
+
             //db = helper.getReadableDatabase(); // 읽기 전용 DB select문
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -84,13 +110,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e(tag, "데이터베이스를 얻어올 수 없음");
             finish(); // 액티비티 종료
         }
-
-        // ArrayAdapter 생성. 아이템 View를 선택(single choice)가능하도록 만듦.
-        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_single_choice, items) ;
-
-        // listview 생성 및 adapter 지정.
-        final ListView listview = (ListView) findViewById(R.id.listview1) ;
-        listview.setAdapter(adapter) ;
 
         /*
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -103,6 +122,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         */
         //gps 서비스 시작
+        Button current = findViewById(R.id.current_location_main);
+        current.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("map","move current location");
+                if(GPSTracker.last_location!=null) {
+                    MainActivity.mMap.clear();
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(GPSTracker.last_location, 15));
+                }
+            }
+        });
 
     }
 
@@ -130,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //2번 버튼
     public void mInsertClick(View v){
         Log.d(tag, "insert 클릭");
-        SQLite_insert();
+        //SQLite_insert();
     }
 
     //3번 버튼
@@ -146,6 +176,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //데이터 받기
                 String result = data.getStringExtra("result");
                 Log.d("result",result);
+                if(result.length()>0) { // 한글자 이상 입력 된다면 추가
+                    String inputStr = result;
+                    String[] array = inputStr.split("&");
+                    Log.d("db",inputStr);
+                    Log.d("db",array[0]);
+                    Log.d("db",array[1]);
+                    Log.d("db",array[2]);
+                    Log.d("db",array[3]);
+                    Log.d("db",array[4]);
+                    Log.d("db",array[5]);
+                    Log.d("db",array[6]);
+
+                    SQLite_insert(array[0],array[1],Integer.parseInt(array[2]),Integer.parseInt(array[3]),Integer.parseInt(array[4]),
+                            (array[5]),(array[6]));
+                    Log.d("결과",result);
+                    //arrayList.add(inputStr);
+                }
             }
         }
     }
@@ -193,8 +240,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    void SQLite_insert () {
-        db.execSQL("insert into alram (name) values('test');");
+    void SQLite_select_all() {
+        Cursor c = db.rawQuery("select * from alram;", null);
+        while(c.moveToNext()) {
+            int id = c.getInt(0);
+            String name = c.getString(1);
+            String memo = c.getString(2);
+            int type = c.getInt(3);
+            int hour = c.getInt(4);
+            int minutes = c.getInt(5);
+            String lati = c.getString(6);
+            String longi = c.getString(7);
+
+            adapter.addItem(name,memo,type,hour,minutes,Double.parseDouble(lati),Double.parseDouble(longi));
+        }
+    }
+    void SQLite_insert (String work,String memo,int type,int hour,int minutes,String lati,String longi) {
+        db.execSQL("insert into alram (work,memo,type,hour,minutes,lati,longi) values('"+
+                work+",'"+memo+"',"+type+","+hour+","+minutes+",'"+lati+"','"+longi+"');");
         Log.d(tag, "insert 성공");
     }
 
@@ -223,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
             @Override
             public void onMapClick(LatLng point) {
+                mMap.clear();
                 MarkerOptions mOptions = new MarkerOptions();
                 // 마커 타이틀
                 mOptions.title("마커 좌표");
