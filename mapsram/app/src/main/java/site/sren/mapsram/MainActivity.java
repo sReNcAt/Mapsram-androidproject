@@ -3,6 +3,10 @@ package site.sren.mapsram;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -24,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,8 +39,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+    AlarmManager alarm_manager;
     public static GoogleMap mMap;
     public static boolean isbtn2 = false;
     public static int RENEW_GPS = 1;
@@ -43,14 +54,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static int STOP_GPS = 3;
     public static TextView test_text;
     final static ArrayList<String> items = new ArrayList<String>() ;
-    private SQLiteHelper helper;
-    String dbName = "alram.db";
-    int dbVersion = 2;
-    private SQLiteDatabase db;
-    String tag = "SQLite";
+
+    private static  SQLiteHelper helper;
+    static String dbName = "alram.db";
+    static int dbVersion = 2;
+    static private SQLiteDatabase db;
+    static String tag = "SQLite";
+
     private ArrayList<String> arrayList;
-    private ListViewAdaptar adapter;
+    private static ListViewAdaptar adapter;
     private  ListView listview;
+    // 알람리시버 intent 생성
+    Intent my_intent;
+    final Calendar calendar = Calendar.getInstance();
+    PendingIntent pendingIntent;
+    private Context context;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +88,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
 
         arrayList = new ArrayList<String>();
-        //adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, items) ;
-        adapter = new ListViewAdaptar();
+        adapter = new ArrayAdapter<String>(this, R.id.list_item, arrayList) ;
+        //adapter = new ListViewAdaptar();
 
         // listview 생성 및 adapter 지정.
         listview = (ListView) findViewById(R.id.itemlist) ;
         listview.setAdapter(adapter) ;
+        alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        this.context = this;
+        my_intent = new Intent(this.context, alarmReciever.class);
+
 
         Display mDisplay = this.getWindowManager().getDefaultDisplay();
         int height = mDisplay.getHeight();
@@ -101,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         helper = new SQLiteHelper(this,dbName,null,dbVersion);
         try {
             db = helper.getWritableDatabase(); // 읽고 쓸수 있는 DB
-            SQLite_select_all();
+            SQLite_select_all(true);
 
             //db = helper.getReadableDatabase(); // 읽기 전용 DB select문
         } catch (SQLiteException e) {
@@ -134,6 +158,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //포그라운드 서비스 시작
+        Intent intent = new Intent(getApplicationContext(), alarmService.class);
+        if (Build.VERSION.SDK_INT >= 26) {
+            getApplicationContext().startForegroundService(intent);
+        }
+        else {
+            getApplicationContext().startService(intent);
+        }
     }
 
     //서비스 중복실행 방지
@@ -197,6 +229,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    public void alarmSetting(){
+
+        // 시간 가져옴
+        int hour = 9;
+        int minute = 10;
+
+        // calendar에 시간 셋팅
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+
+        Toast.makeText(MainActivity.this,"Alarm 예정 " + hour + "시 " + minute + "분",Toast.LENGTH_SHORT).show();
+
+        // reveiver에 string 값 넘겨주기
+        my_intent.putExtra("state","alarm on");
+
+        pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, my_intent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // 알람셋팅
+        alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),pendingIntent);
+    }
+
+    public void alarmClear(){
+        Toast.makeText(MainActivity.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
+        // 알람매니저 취소
+        alarm_manager.cancel(pendingIntent);
+        my_intent.putExtra("state","alarm off");
+        // 알람취소
+        sendBroadcast(my_intent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -231,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(tag, "update 완료");
     }
 
-    void SQLite_select() {
+    static void SQLite_select() {
         Cursor c = db.rawQuery("select * from alram;", null);
         while(c.moveToNext()) {
             int id = c.getInt(0);
@@ -240,8 +303,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    void SQLite_select_all() {
+    static Map<Integer, String[]> SQLite_select_all(boolean isMain) {
         Cursor c = db.rawQuery("select * from alram;", null);
+        Map<Integer, String[]> item_array = new HashMap<>();
+
+        int i=0;
         while(c.moveToNext()) {
             int id = c.getInt(0);
             String name = c.getString(1);
@@ -251,14 +317,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             int minutes = c.getInt(5);
             String lati = c.getString(6);
             String longi = c.getString(7);
-
-            adapter.addItem(name,memo,type,hour,minutes,Double.parseDouble(lati),Double.parseDouble(longi));
+            String valueArr[];
+            item_array.put(i,new String[]{String.valueOf(id),name,memo, String.valueOf(type), String.valueOf(hour), String.valueOf(minutes),lati,longi});
+            if(isMain) {
+                adapter.addItem(name, memo, type, hour, minutes, Double.parseDouble(lati), Double.parseDouble(longi));
+            }
         }
+        return item_array;
     }
-    void SQLite_insert (String work,String memo,int type,int hour,int minutes,String lati,String longi) {
-        db.execSQL("insert into alram (work,memo,type,hour,minutes,lati,longi) values('"+
-                work+",'"+memo+"',"+type+","+hour+","+minutes+",'"+lati+"','"+longi+"');");
+    public void SQLite_insert (String work,String memo,int type,int hour,int minutes,String lati,String longi) {
+        db.execSQL("insert into alram (work,memo,type,hour,minutes,lati,longi) values(\""+
+                work+"\",\""+memo+"\","+type+","+hour+","+minutes+",'"+lati+"','"+longi+"');");
         Log.d(tag, "insert 성공");
+
     }
 
     @Override

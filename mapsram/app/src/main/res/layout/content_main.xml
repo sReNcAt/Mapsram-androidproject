@@ -58,54 +58,64 @@
             android:layout_height="wrap_content"
             android:minHeight="100dp"
             android:orientation="horizontal">
-
-            <ListView
-                android:id="@+id/itemlist"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:choiceMode="singleChoice"
-                android:isScrollContainer="true" />
-        </LinearLayout>
-
-
-        <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+            <!--
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TableRow>
+                <TextView />
+                <TextView />
+                <TextView />
+            </TableRow>
+        </TableLayout>
+        -->
+        <ListView
+            android:id="@+id/itemlist"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <Button
-                    android:id="@+id/btn1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="mOnPopupClick"
-                    android:text="btn1" />
-
-                <Button
-                    android:id="@+id/btn2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="mInsertClick"
-                    android:text="btn2" />
-
-                <Button
-                    android:id="@+id/btn3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="mSelectClick"
-                    android:text="btn3" />
-            </LinearLayout>
-        </android.support.constraint.ConstraintLayout>
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:choiceMode="singleChoice"
+            android:isScrollContainer="true" />
     </LinearLayout>
+
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mOnPopupClick"
+                android:text="btn1" />
+
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mInsertClick"
+                android:text="btn2" />
+
+            <Button
+                android:id="@+id/btn3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="mSelectClick"
+                android:text="btn3" />
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+</LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -3,6 +3,7 @@
     package="site.sren.mapsram">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -38,6 +39,13 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
+        <receiver android:name=".alarmReciever" />
+        <service
+            android:name=".RingtonePlayingService"
+            android:enabled="true"></service>
+        <service
+            android:name=".alarmService"
+            android:enabled="true"></service>
     </application>
 
 </manifest>
