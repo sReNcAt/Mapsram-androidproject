@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ public class addPopupActivity extends Activity {
     EditText workEdit;
     LinearLayout timelinear;
     TextView timeText;
+    DatePicker datePicker;
 
     LatLng select_position;
     @Override
@@ -45,7 +47,7 @@ public class addPopupActivity extends Activity {
         workEdit = findViewById(R.id.workEdit);
         timelinear = findViewById(R.id.timelinear);
         timeText = findViewById(R.id.timeTxt);
-
+        datePicker = findViewById(R.id.datePicker);
         //데이터 가져오기
         Intent intent = getIntent();
         String data = intent.getStringExtra("data");
@@ -83,6 +85,9 @@ public class addPopupActivity extends Activity {
     public void mOnSave(View v){
         int hour = 0;
         int min = 0;
+        int year = datePicker.getYear();
+        int month= datePicker.getMonth();
+        int day  = datePicker.getDayOfMonth();
         if (checkBox1.isChecked()) {
             //타임피커에서 시,분 가져오기
             Calendar b = Calendar.getInstance();
@@ -128,7 +133,7 @@ public class addPopupActivity extends Activity {
 
         //데이터 전달하기
         Intent intent = new Intent();
-        intent.putExtra("result", workEdit.getText()+"&"+areaEdit.getText()+"&"+alramtype+"&"+hour+"&"+min+"&"+select_position.latitude+"&"+select_position.longitude);
+        intent.putExtra("result", workEdit.getText()+"&"+areaEdit.getText()+"&"+alramtype+"&"+hour+"&"+min+"&"+select_position.latitude+"&"+select_position.longitude+"&"+year+"&"+month+"&"+day);
         setResult(RESULT_OK, intent);
 
 
@@ -147,13 +152,9 @@ public class addPopupActivity extends Activity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case 90:
-                if (resultCode == RESULT_OK) {
-                    select_position = data.getExtras().getParcelable("position");
-                    //Log.d("field",select_position.latitude+" "+select_position.latitude);
-                }
-                break;
+        if (resultCode == RESULT_OK) {
+            select_position = data.getExtras().getParcelable("position");
+            //Log.d("field",select_position.latitude+" "+select_position.latitude);
         }
     }
 

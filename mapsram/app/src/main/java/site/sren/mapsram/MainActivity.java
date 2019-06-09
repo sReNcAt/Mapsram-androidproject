@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,17 +13,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,9 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -57,27 +56,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static  SQLiteHelper helper;
     static String dbName = "alram.db";
-    static int dbVersion = 2;
+    static int dbVersion = 4;
     static private SQLiteDatabase db;
     static String tag = "SQLite";
 
     private ArrayList<String> arrayList;
     private static ListViewAdaptar adapter;
-    private  ListView listview;
+    private static ListView listview;
     // 알람리시버 intent 생성
     Intent my_intent;
     final Calendar calendar = Calendar.getInstance();
     PendingIntent pendingIntent;
-    private Context context;
+    private Context context = this;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        /*
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        */
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
             ActivityCompat.requestPermissions( this, new String[] {  Manifest.permission.ACCESS_FINE_LOCATION  },
@@ -86,17 +87,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Build the map.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-
+        getSupportFragmentManager().beginTransaction().hide(mapFragment).commit();
         arrayList = new ArrayList<String>();
-        adapter = new ArrayAdapter<String>(this, R.id.list_item, arrayList) ;
+        adapter = new ListViewAdaptar();
         //adapter = new ListViewAdaptar();
+
+        this.context = this;
 
         // listview 생성 및 adapter 지정.
         listview = (ListView) findViewById(R.id.itemlist) ;
         listview.setAdapter(adapter) ;
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ListViewItem aa = (ListViewItem) adapter.getItem(position);
+                Intent intent = new Intent(getApplicationContext(),alarmActivity.class);
+                intent.putExtra("work",aa.getWork());
+                String time = aa.getYear()+"년 "+aa.getMonth()+"월 "+aa.getDay()+"일 "+aa.getHour()+"시 "+aa.getMinutes()+"분";
+                intent.putExtra("time",time);
+                intent.putExtra("memo",aa.getMemo());
+                startActivity(intent);
+                //SQLite_update(Integer.parseInt(aa.getId()));
+            }
+        });
         alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        this.context = this;
         my_intent = new Intent(this.context, alarmReciever.class);
 
 
@@ -159,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         //포그라운드 서비스 시작
+        /*
         Intent intent = new Intent(getApplicationContext(), alarmService.class);
         if (Build.VERSION.SDK_INT >= 26) {
             getApplicationContext().startForegroundService(intent);
@@ -166,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         else {
             getApplicationContext().startService(intent);
         }
+        */
     }
 
     //서비스 중복실행 방지
@@ -221,8 +238,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d("db",array[6]);
 
                     SQLite_insert(array[0],array[1],Integer.parseInt(array[2]),Integer.parseInt(array[3]),Integer.parseInt(array[4]),
-                            (array[5]),(array[6]));
+                            (array[5]),(array[6]),Integer.parseInt(array[7]),Integer.parseInt(array[8]),Integer.parseInt(array[8]));
+                    //adapter.clearItem();
                     Log.d("결과",result);
+                    //adapter.addItem(array[0],array[1],Integer.parseInt(array[2]),Integer.parseInt(array[3]),Integer.parseInt(array[4]),.parseDouble(array[5]),Double.parseDouble(array[6]),Integer.parseInt(array[7]),Integer.parseInt(array[8]),Integer.parseInt(array[8]));
+                    //adapter.notifyDataSetChanged();
+                    final Handler handler = new Handler()
+                    {
+                        public void handleMessage(Message msg) {
+                            adapter = new ListViewAdaptar();
+                            listview.setAdapter(adapter) ;
+                            SQLite_select_all(true);
+                        }
+                    };
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            Message msg = handler.obtainMessage();
+                            handler.sendMessage(msg);
+                        }
+                    }.start();
                     //arrayList.add(inputStr);
                 }
             }
@@ -263,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -289,13 +325,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(tag, "delete 완료");
     }
 
-    void SQLite_update() {
-        db.execSQL("update alram set id='0' where id=1;");
+    void SQLite_update(int id) {
+        db.execSQL("update alram set status='0' where id="+id+";");
         Log.d(tag, "update 완료");
     }
 
     static void SQLite_select() {
-        Cursor c = db.rawQuery("select * from alram;", null);
+        Cursor c = db.rawQuery("select * from alram where status = '0';", null);
         while(c.moveToNext()) {
             int id = c.getInt(0);
             String name = c.getString(1);
@@ -304,10 +340,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     static Map<Integer, String[]> SQLite_select_all(boolean isMain) {
-        Cursor c = db.rawQuery("select * from alram;", null);
+        Cursor c = db.rawQuery("select * from alram where status = '0' order by id;", null);
         Map<Integer, String[]> item_array = new HashMap<>();
 
-        int i=0;
+        int i=1;
         while(c.moveToNext()) {
             int id = c.getInt(0);
             String name = c.getString(1);
@@ -317,17 +353,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             int minutes = c.getInt(5);
             String lati = c.getString(6);
             String longi = c.getString(7);
+            int year = c.getInt(8);
+            int month = c.getInt(9);
+            int day = c.getInt(10);
             String valueArr[];
             item_array.put(i,new String[]{String.valueOf(id),name,memo, String.valueOf(type), String.valueOf(hour), String.valueOf(minutes),lati,longi});
             if(isMain) {
-                adapter.addItem(name, memo, type, hour, minutes, Double.parseDouble(lati), Double.parseDouble(longi));
+                //adapter.notifyDataSetChanged();
+                adapter.addItem(name, memo, type, hour, minutes, Double.parseDouble(lati), Double.parseDouble(longi),year,month,day);
             }
+            i++;
         }
         return item_array;
     }
-    public void SQLite_insert (String work,String memo,int type,int hour,int minutes,String lati,String longi) {
-        db.execSQL("insert into alram (work,memo,type,hour,minutes,lati,longi) values(\""+
-                work+"\",\""+memo+"\","+type+","+hour+","+minutes+",'"+lati+"','"+longi+"');");
+    public void SQLite_insert (String work,String memo,int type,int hour,int minutes,String lati,String longi,int year,int month,int day) {
+        db.execSQL("insert into alram (status,work,memo,type,hour,minutes,lati,longi,year,month,day) values('0',\""+
+                work+"\",\""+memo+"\","+type+","+hour+","+minutes+",'"+lati+"','"+longi+"',"+year+","+month+","+day+");");
         Log.d(tag, "insert 성공");
 
     }

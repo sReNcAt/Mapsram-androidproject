@@ -17,7 +17,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         // 최초에 데이터베이스가 없을경우, 데이터베이스 생성을 위해 호출됨
         // 테이블 생성하는 코드를 작성한다
         String sql = "create table alram(id integer primary key autoincrement," +
-                "work text, memo text, type integer, hour integer, minutes integer, lati text, longi text);";
+                "work text, memo text, type integer, hour integer, minutes integer, lati text, longi text, year int, month int, day int,status text);";
         db.execSQL(sql);
     }
 

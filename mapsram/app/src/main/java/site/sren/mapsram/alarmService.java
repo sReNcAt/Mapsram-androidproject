@@ -14,9 +14,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -93,7 +91,7 @@ public class alarmService extends Service {
                                 int current_minutes = calendar.get(Calendar.MONTH);
                                 
                                 if(hour == current_hour && minutes == current_minutes){
-                                    alarmSetting();
+                                    alarmSetting(hour,minutes);
                                     Thread.sleep(1000);
                                     alarmClear();
                                 }
@@ -120,17 +118,17 @@ public class alarmService extends Service {
         bt.start();
     }
 
-    public void alarmSetting(){
+    public void alarmSetting(int hour,int minute){
 
         // 시간 가져옴
-        int hour = 9;
-        int minute = 10;
+        hour = 9;
+        minute = 10;
 
         // calendar에 시간 셋팅
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
-
+        Log.d("alarm",hour+"시"+minute+"분");
         this.context = this;
         my_intent = new Intent(this.context, alarmReciever.class);
         alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);

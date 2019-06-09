@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#eeeeee"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- 타이틀바 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="53dp"
+                android:background="#273236"
+                android:gravity="left"
+                android:text="일정 알림"
+                android:textColor="#fff"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp"
+                android:textSize="20sp" />
+        </LinearLayout>
+        <!-- //end 타이틀바 -->
+
+        <!-- Notice -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:layout_gravity="center_horizontal" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+                <TextView
+                    android:id="@+id/alarm_work"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:alpha="0.87"
+                    android:textColor="#000"
+                    android:gravity="left"
+                    android:textSize="15sp"
+                    android:text="안과 처방전 받기"/>
+                <TextView
+                    android:id="@+id/alarm_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:alpha="0.87"
+                    android:textColor="#000"
+                    android:gravity="left"
+                    android:textSize="15sp"
+                    android:text="2019년"/>
+                <TextView
+                    android:id="@+id/alarm_memo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:alpha="0.87"
+                    android:textColor="#000"
+                    android:gravity="left"
+                    android:textSize="15sp"
+                    android:text="백석역 3번출구"/>
+            </LinearLayout>
+        </LinearLayout>
+        <!-- Notice -->
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#66bdbdbd" />
+
+        <!-- 닫기 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/alarm_ok"
+                android:layout_width="match_parent"
+                android:layout_height="53dp"
+                android:background="#3598DB"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="OK"
+                android:textColor="#ffffff"
+                android:textSize="15dp" />
+        </LinearLayout>
+        <!--// 닫기 버튼 -->
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

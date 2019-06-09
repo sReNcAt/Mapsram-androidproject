@@ -1,12 +1,10 @@
 package site.sren.mapsram;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -29,14 +27,24 @@ public class ListViewAdaptar extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        //Log.e("왜오류",position+"");
         final Context context = parent.getContext();
         int viewType = getItemViewType(position) ;
-
+        ListViewItem listViewItem = listViewItemList.get(position);
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
-            // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
-            ListViewItem listViewItem = listViewItemList.get(position);
+            convertView = inflater.inflate(R.layout.list_item, parent, false);
 
+            TextView item_memo = (TextView) convertView.findViewById(R.id.item_memo);
+            TextView item_date = (TextView) convertView.findViewById(R.id.item_date);
+            TextView item_work = (TextView) convertView.findViewById(R.id.item_work);
+            TextView item_no = (TextView) convertView.findViewById(R.id.item_no);
+
+
+            item_memo.setText(listViewItem.getMemo());
+            item_date.setText(listViewItem.getYear()+"."+listViewItem.getMonth()+"."+listViewItem.getDay());
+            item_work.setText(listViewItem.getWork()+"");
+            item_no.setText((position+1)+"");
         }
 
         return convertView;
@@ -54,8 +62,11 @@ public class ListViewAdaptar extends BaseAdapter {
         return listViewItemList.get(position) ;
     }
 
+    public void clearItem(){
+        this.listViewItemList = new ArrayList<ListViewItem>() ;
+    }
     //아이템 추가를 위한 함수.
-    public void addItem(String work, String memo,int alaramType,int hour, int minutes ,Double latitude, Double logitude ) {
+    public void addItem(String work, String memo,int alaramType,int hour, int minutes ,Double latitude, Double logitude,int year,int month,int day) {
         ListViewItem item = new ListViewItem() ;
 
         item.setWork(work) ;
@@ -65,7 +76,9 @@ public class ListViewAdaptar extends BaseAdapter {
         item.setMinutes(minutes);
         item.setLatitude(latitude);
         item.setLogitude(logitude);
-
+        item.setYear(year);
+        item.setMonth(month);
+        item.setDay(day);
         listViewItemList.add(item) ;
     }
 }

@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -73,10 +72,10 @@ public class GPSTracker extends Service implements LocationListener {
 
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( mContext, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-            Log.d("gps","failed GPS Start");
+            //Log.d("gps","failed GPS Start");
             return null;
         }
-        Log.d("gps","Sucsess GPS Start");
+        //Log.d("gps","Sucsess GPS Start");
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(LOCATION_SERVICE);
@@ -90,18 +89,18 @@ public class GPSTracker extends Service implements LocationListener {
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (!isGPSEnabled && !isNetworkEnabled) {
-                Log.d("gps","no Network Provider is Enabled");
+                //Log.d("gps","no Network Provider is Enabled");
                 // no network provider is enabled
             } else {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
-                    Log.d("gps","GPS Using Network");
+                    //Log.d("gps","GPS Using Network");
                     locationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.d("Network", "Network");
+                    //Log.d("Network", "Network");
                     if (locationManager != null) {
                         location = locationManager
                                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -113,20 +112,20 @@ public class GPSTracker extends Service implements LocationListener {
                 }
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
-                    Log.d("gps","GPS Using GPS");
+                    //Log.d("gps","GPS Using GPS");
                     if (location == null) {
                         locationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("GPS Enabled", "GPS Enabled");
+                        //Log.d("GPS Enabled", "GPS Enabled");
                         if (locationManager != null) {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
-                                Log.d("gps","latitude : " + latitude + "\n longitude : " + longitude);
+                                //Log.d("gps","latitude : " + latitude + "\n longitude : " + longitude);
                             }
                         }
                     }
@@ -139,7 +138,8 @@ public class GPSTracker extends Service implements LocationListener {
         if (location != null) {
 
             send_handler_location(location);
-            last_location = new LatLng(Math.round(location.getLatitude()*100000)/100000, Math.round(location.getLongitude()*100000)/100000);
+            //last_location = new LatLng(Math.round(location.getLatitude()*100000)/100000.0, Math.round(location.getLongitude()*100000)/100000.0);
+            last_location = new LatLng(location.getLatitude(), location.getLongitude());
             if(marker_temp_list.size()>0) {
                 for (Marker marker_temp: marker_temp_list) {
                     marker_temp.remove();
@@ -154,9 +154,10 @@ public class GPSTracker extends Service implements LocationListener {
                     .position(last_location)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                     //.snippet("위치확인 불가"));
+            //Log.d("알람",last_location+"");
             marker_temp_list.add(marker_temp);
         }else{
-            Log.d("gps", "null Location");
+            //Log.d("gps", "null Location");
         }
         return location;
     }
