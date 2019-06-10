@@ -37,10 +37,10 @@ public class BackgroundService extends Service {
     private PendingIntent pendingIntent;
     private static  SQLiteHelper helper;
     static String dbName = "alram.db";
-    static int dbVersion = 4;
+    int dbVersion = MainActivity.dbVersion;
     static private SQLiteDatabase db;
     static String tag = "SQLite";
-
+    private int peding_id = 0;
     class MyBinder extends Binder{
         BackgroundService getService(){
             return BackgroundService.this;
@@ -74,7 +74,7 @@ public class BackgroundService extends Service {
 
                     }else{
                         gps.Update();
-                        Log.d("GPS_STATUS", "gps update");
+                        //Log.d("GPS_STATUS", "gps update");
                     }
                 }
                 if(msg.what==MainActivity.SEND_PRINT){
@@ -94,8 +94,8 @@ public class BackgroundService extends Service {
                     if(before_lat!=0.00 || before_lon !=0.00){
                         distance = (int)(calc.distance(before_lat, before_lon, current_lat, current_lon, "M"));
                         //여기서확인
-                        Log.d("time",hour+"시 "+minute+"분");
-                        Log.d("distance",distance+"미터");
+                        //Log.d("time",hour+"시 "+minute+"분");
+                        //Log.d("distance",distance+"미터");
                     }else {
                         before_lat = current_lat;
                         before_lon = current_lon;
@@ -104,7 +104,7 @@ public class BackgroundService extends Service {
                 }
                 if(msg.what==MainActivity.STOP_GPS){
                     mCountThread.stopThread();
-                    Log.d("GPS_STATUS", "Thread 정지");
+                    //Log.d("GPS_STATUS", "Thread 정지");
                 }
             }
         };
@@ -192,13 +192,18 @@ public class BackgroundService extends Service {
         }
         Calendar currentTime = Calendar.getInstance();
         int c_year = currentTime.get(Calendar.YEAR);
-        int c_month = currentTime.get(Calendar.MONTH);
-        int c_day = currentTime.get(Calendar.DAY_OF_MONTH);
+        int c_month = currentTime.get(Calendar.MONTH)+1;
+        int c_day = currentTime.get(Calendar.DATE);
         int c_hour = currentTime.get(Calendar.HOUR_OF_DAY);
         int c_minute = currentTime.get(Calendar.MINUTE);
         int c_second = currentTime.get(Calendar.SECOND);
-        Cursor c = db.rawQuery("select * from alram where status = '0' and hour = "+hours+";", null);
+
+        // 시간기반
+        Cursor c = db.rawQuery("select * from alram where status = '0' and year = "+c_year+" " +
+                "and month = "+c_month+" and day = "+c_day+"  and hour = "+hours+";", null);
+        Log.d("알람",c_year+"년 "+c_month+"월 "+c_day+"일");
         while(c.moveToNext()) {
+            Log.d("알람",c+"");
             int id = c.getInt(0);
             String work = c.getString(1);
             String memo = c.getString(2);
@@ -211,13 +216,39 @@ public class BackgroundService extends Service {
             int month = c.getInt(9);
             int day = c.getInt(10);
 
-            if(c_minute<=minutes){
+            if(c_minute<=minutes&&hour!=99){
                 int distance = (int)(calc.distance(Double.parseDouble(lati), Double.parseDouble(longi), lat, lon, "M"));
                 Log.d("알람",lati+" : "+longi);
                 Log.d("알람","거리 : "+distance+"\n");
-                if(minutes-c_minute==1 && (distance<=500 || (Double.parseDouble(lati)==0.0 && Double.parseDouble(longi) ==0.0) )){
-                    alarmSetting(hours,minutes,work,memo,year,month,day,id);
+                if(minutes-c_minute==1 && (distance<=100 || (Double.parseDouble(lati)==0.0 && Double.parseDouble(longi) ==0.0) )){
+                    alarmSetting(hour,minutes,work,memo,year,month,day,id);
                 }
+            }
+        }
+
+        // 위치기반
+        c = db.rawQuery("select * from alram where status = '0' and year = "+c_year+" " +
+                "and month = "+c_month+" and day = "+c_day+"  and hour = 99;", null);
+        Log.d("알람",c_year+"년 "+c_month+"월 "+c_day+"일");
+        while(c.moveToNext()) {
+            Log.d("알람",c+"");
+            int id = c.getInt(0);
+            String work = c.getString(1);
+            String memo = c.getString(2);
+            int type = c.getInt(3);
+            int hour = c.getInt(4);
+            int minutes = c.getInt(5);
+            String lati = c.getString(6);
+            String longi = c.getString(7);
+            int year = c.getInt(8);
+            int month = c.getInt(9);
+            int day = c.getInt(10);
+            int distance = (int)(calc.distance(Double.parseDouble(lati), Double.parseDouble(longi), lat, lon, "M"));
+            Log.d("알람",lati+" : "+longi);
+            Log.d("알람","거리 : "+distance+"\n");
+            if((distance<=100)){
+                alarmSetting(c_hour,c_minute+1,work,memo,year,month,day,id);
+                SQLite_update(id);
             }
         }
     }
@@ -237,13 +268,18 @@ public class BackgroundService extends Service {
         my_intent.putExtra("state","alarm on");
         my_intent.putExtra("id",id+"");
         my_intent.putExtra("work",work);
-        my_intent.putExtra("time",year+"년 "+month+"월 "+day+"일 "+hour+"시 "+minute+"분");
+        if(hour==99){
+            my_intent.putExtra("time",year+"년 "+month+"월 "+day+"일");
+        }else {
+            my_intent.putExtra("time", year + "년 " + month + "월 " + day + "일 " + hour + "시 " + minute + "분");
+        }
         my_intent.putExtra("memo",memo);
 
-        pendingIntent = PendingIntent.getBroadcast(BackgroundService.this, 0, my_intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(BackgroundService.this, peding_id, my_intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         // 알람셋팅
         alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),pendingIntent);
+        peding_id++;
     }
 
     public void alarmClear(){
@@ -252,5 +288,17 @@ public class BackgroundService extends Service {
         my_intent.putExtra("state","alarm off");
         // 알람취소
         sendBroadcast(my_intent);
+    }
+
+    void SQLite_update(int id) {
+        helper = new SQLiteHelper(this,dbName,null,dbVersion);
+        try {
+            db = helper.getWritableDatabase(); // 읽고 쓸수 있는 DB
+            db.execSQL("update alram set status='1' where id="+id+";");
+            Log.d(tag, "update 완료");
+            //db = helper.getReadableDatabase(); // 읽기 전용 DB select문
+        } catch (SQLiteException e) {
+
+        }
     }
 }

@@ -57,6 +57,7 @@
                     android:text="장 소"/>
                 <EditText
                     android:id="@+id/areaEdit"
+                    android:inputType="text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
                 <TextView
@@ -147,6 +148,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#3DB7CC"
+                    android:inputType="text"
                     android:text="123"/>
             </LinearLayout>
         </LinearLayout>

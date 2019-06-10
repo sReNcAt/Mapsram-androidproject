@@ -86,7 +86,7 @@ public class addPopupActivity extends Activity {
         int hour = 0;
         int min = 0;
         int year = datePicker.getYear();
-        int month= datePicker.getMonth();
+        int month= datePicker.getMonth()+1;
         int day  = datePicker.getDayOfMonth();
         if (checkBox1.isChecked()) {
             //타임피커에서 시,분 가져오기
@@ -106,6 +106,8 @@ public class addPopupActivity extends Activity {
                     "체크1 : "+checkBox1.isChecked()+"\n"+
                     "체크2 : "+checkBox2.isChecked()+"\n");
         } else {
+            hour=99;
+            min=99;
             // TODO : CheckBox is unchecked.
         }
 

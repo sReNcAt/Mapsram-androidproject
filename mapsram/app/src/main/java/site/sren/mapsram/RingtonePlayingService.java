@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -28,7 +29,7 @@ public class RingtonePlayingService extends Service {
 
     private static  SQLiteHelper helper;
     static String dbName = "alram.db";
-    static int dbVersion = 3;
+    int dbVersion = MainActivity.dbVersion;
     static private SQLiteDatabase db;
     static String tag = "SQLite";
 
@@ -57,6 +58,7 @@ public class RingtonePlayingService extends Service {
             }
             notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("알람시작")
+                    .setOngoing(true)
                     .setContentText("알람음이 재생됩니다.")
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setAutoCancel(true) // 알림 터치시 반응 후 삭제
@@ -77,7 +79,8 @@ public class RingtonePlayingService extends Service {
 
         notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("알람!!")
-                .setContentText("알람음이 재생됩니다.")
+                .setContentText(time+"\n"+work)
+                .setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setAutoCancel(true) // 알림 터치시 반응 후 삭제
                 .build();
@@ -88,6 +91,7 @@ public class RingtonePlayingService extends Service {
         intent1.putExtra("work",work);
         intent1.putExtra("time",time);
         intent1.putExtra("memo",memo);
+        intent1.putExtra("id",id);
         SQLite_update(Integer.parseInt(id));
         startActivity(intent1.addFlags(FLAG_ACTIVITY_NEW_TASK));
 
@@ -119,10 +123,10 @@ public class RingtonePlayingService extends Service {
             notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("알람!!")
                     .setContentText("알람음이 재생됩니다.")
+                    .setOngoing(true)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setAutoCancel(true) // 알림 터치시 반응 후 삭제
                     .build();
-
             startForeground(1, notification);
 
         }

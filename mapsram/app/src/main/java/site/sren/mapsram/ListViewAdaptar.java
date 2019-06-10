@@ -66,9 +66,10 @@ public class ListViewAdaptar extends BaseAdapter {
         this.listViewItemList = new ArrayList<ListViewItem>() ;
     }
     //아이템 추가를 위한 함수.
-    public void addItem(String work, String memo,int alaramType,int hour, int minutes ,Double latitude, Double logitude,int year,int month,int day) {
+    public void addItem(int id,String work, String memo,int alaramType,int hour, int minutes ,Double latitude, Double logitude,int year,int month,int day) {
         ListViewItem item = new ListViewItem() ;
 
+        item.setId(id) ;
         item.setWork(work) ;
         item.setMemo(memo) ;
         item.setAlramType(alaramType);
