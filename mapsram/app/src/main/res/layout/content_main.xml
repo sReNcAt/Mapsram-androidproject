@@ -90,7 +90,7 @@
                     android:layout_height="40dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-                    android:text="안과 처방전 받기"
+                    android:text=""
                     android:textColor="#273236"
                     android:textSize="20dp" />
 
@@ -100,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-                    android:text="5월 15일"
+                    android:text=""
                     android:textColor="#8C8C8C"
                     android:textSize="15dp" />
 
@@ -110,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-                    android:text="안과 처방전"
+                    android:text=""
                     android:textColor="#8C8C8C"
                     android:textSize="15dp" />
             </LinearLayout>

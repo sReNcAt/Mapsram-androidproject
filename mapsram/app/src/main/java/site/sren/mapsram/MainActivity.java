@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     PendingIntent pendingIntent;
     private Context context = this;
 
+    TextView main_work;
+    TextView main_time;
+    TextView main_memo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +135,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //listview.setLayoutParams(params);
         mapFragment.getMapAsync(this);
         test_text = (TextView)findViewById(R.id.test_text);
-
+        main_work=findViewById(R.id.main_work);
+        main_time=findViewById(R.id.main_time);
+        main_memo=findViewById(R.id.main_memo);
         //Service 객체 생성
         GPSTracker.isGPSEnabled = true;
 
@@ -190,8 +195,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             getApplicationContext().startService(intent);
         }
         */
+        set_near_alarm();
     }
+    void set_near_alarm(){
+        Cursor c = db.rawQuery("select * from alram where status = '0'  order by id limit 1;", null);
+        while(c.moveToNext()) {
+            int id = c.getInt(0);
+            String name = c.getString(1);
+            String memo = c.getString(2);
+            int type = c.getInt(3);
+            int hour = c.getInt(4);
+            int minutes = c.getInt(5);
+            String lati = c.getString(6);
+            String longi = c.getString(7);
+            int year = c.getInt(8);
+            int month = c.getInt(9);
+            int day = c.getInt(10);
 
+            main_work.setText(name);
+            main_time.setText(year+"년 "+(month+1)+"월 "+day+"일 "+hour+"시 "+minutes+"분");
+            main_memo.setText(memo);
+            break;
+        }
+    }
     //서비스 중복실행 방지
     public boolean isServiceRunningCheck() {
         ActivityManager manager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
@@ -363,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         db.execSQL("insert into alram (status,work,memo,type,hour,minutes,lati,longi,year,month,day) values('0',\""+
                 work+"\",\""+memo+"\","+type+","+hour+","+minutes+",'"+lati+"','"+longi+"',"+year+","+month+","+day+");");
         Log.d(tag, "insert 성공");
-
+        set_near_alarm();
     }
 
     @Override
